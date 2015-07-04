@@ -3,24 +3,83 @@ require_relative 'pieces'
 require 'colorize'
 
 class Board
-  attr_accessor :board, :debug_piece
+  attr_accessor :board, :currently_selected_piece
+  attr_reader :sentinel
 
   def initialize
-    @board = Array.new(8) { Array.new(8) { EmptySquare.new } }
+    @sentinel = EmptySquare.new
+    @board = Array.new(8) { Array.new(8) { sentinel } }
+    @currently_selected_piece = sentinel
   end
 
-  def lime?(coord)
-    self.debug_piece && self.debug_piece.valid_moves.include? coord
+  def current_piece_valid_moves
+    return [] unless self.currently_selected_piece.piece?
+
+    self.currently_selected_piece.possible_moves &
+    self.valid_moves(self.currently_selected_piece.position)
   end
 
-  def render
+  def in_check?(color)
+    king = find_king(color)
+    board.flatten.each do |piece|
+      if piece.piece? && piece.color != color
+        return true if piece.possible_moves.include?(king.position)
+      end
+    end
+    false
+  end
+
+  def find_king(color)
+    board.flatten.find do |piece|
+      piece.piece? && piece.king? && piece.color == color
+    end
+  end
+
+  def check_mate?(color)
+    return false unless in_check?(color)
+    board.flatten.none? do |piece|
+      piece.piece? && (piece.color == color) && valid_moves(piece.position).any?
+    end
+
+  end
+
+  def valid_moves(coord)
+    #for a piece, possible_moves + don't leave king in check
+    piece = self[*coord]
+    piece.possible_moves.reject do |move|
+      dupped_board = self.deep_dup
+      dupped_board.move!(coord, move)
+      dupped_board.in_check?(piece.color)
+    end
+
+  end
+
+  def deep_dup
+    dupped_board = Board.new
+
+    self.board.each do |row|
+      row.each do |piece|
+        next if !piece.piece?
+        dupped_piece = piece.dup
+        dupped_piece.board = dupped_board
+        dupped_board[ *piece.position ] = dupped_piece
+      end
+    end
+
+    dupped_board
+  end
+
+  def render(cursor)
+    current_piece_moves = current_piece_valid_moves
     color = true
     @board.each.with_index do |row, row_i|
       color = !color
       row.each.with_index do |square_or_piece, col_i|
         color = !color
         str = square_or_piece.piece? ? square_or_piece.to_s : "  "
-        if lime?([row_i, col_i])
+        if [row_i, col_i] == cursor
+          print(str.on_yellow)
+        elsif current_piece_moves.include?([row_i, col_i])
           print(str.on_green)
         else
           color ? print(str.on_red) : print(str.on_black)
@@ -73,10 +132,18 @@ class Board
     self[ *pos ].piece?
   end
 
-  def move(from_here, to_here)
+  def move!(from_here, to_here)
     self[ *to_here ] = self[ *from_here ]
     self[ *to_here ].position = to_here
-    self[ *from_here ] = EmptySquare.new
+    self[ *from_here ] = sentinel
+
+    if self[ *to_here ].piece?
+      self[ *to_here ].moved = true
+    end
+  end
+
+  def row(num)
+    board[num]
   end
 
 end

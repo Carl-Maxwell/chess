@@ -6,4 +6,8 @@ class EmptySquare
   def ally?(color)
     false
   end
+
+  def enemy?(color)
+    false
+  end
 end
