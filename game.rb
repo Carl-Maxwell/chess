@@ -1,4 +1,4 @@
-require 'IO/console'
+require 'io/console'
 require_relative 'board'
 require_relative 'vector'
 require_relative 'player'
@@ -76,5 +76,4 @@ class Game
     end
     self.quit = false
   end
-
 end
