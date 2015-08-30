@@ -71,18 +71,19 @@ class Board
 
   def render(cursor)
     current_piece_moves = current_piece_valid_moves
-    color = true
     @board.each.with_index do |row, row_i|
-      color = !color
       row.each.with_index do |square_or_piece, col_i|
-        color = !color
         str = square_or_piece.piece? ? square_or_piece.to_s : "  "
         if [row_i, col_i] == cursor
           print(str.on_yellow)
         elsif current_piece_moves.include?([row_i, col_i])
           print(str.on_green)
         else
-          color ? print(str.on_red) : print(str.on_black)
+          if (col_i + row_i) % 2 == 0
+            print(str.on_red)
+          else
+            print(str.on_black)
+          end
         end
       end
       puts
@@ -91,29 +92,25 @@ class Board
   end
 
   def populate
-    populate_pawns
     populate_back_rank(0, :black)
+    populate_pawns(1, :black)
+
+    populate_pawns(6, :white)
     populate_back_rank(7, :white)
   end
 
-  def populate_pawns
-    self.board[1].each_with_index do |square, index|
-      self.board[1][index] = Pawn.new(:black, self, [1, index])
-    end
-    self.board[6].each_with_index do |square, index|
-      self.board[6][index] = Pawn.new(:white, self, [6, index])
+  def populate_pawns(row, color)
+    self.board[row].each_with_index do |square, index|
+      self.board[row][index] = Pawn.new(color, self, [row, index])
     end
   end
 
   def populate_back_rank(row, color)
-    self[row, 0] = Rook.new(color, self, [row, 0])
-    self[row, 1] = Knight.new(color, self, [row, 1])
-    self[row, 2] = Bishop.new(color, self, [row, 2])
-    self[row, 3] = Queen.new(color, self, [row, 3])
-    self[row, 4] = King.new(color, self, [row, 4])
-    self[row, 5] = Bishop.new(color, self, [row, 5])
-    self[row, 6] = Knight.new(color, self, [row, 6])
-    self[row, 7] = Rook.new(color, self, [row, 7])
+    row_classes = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
+
+    row_classes.each.with_index do |klass, i|
+      self[row, i] = klass.new(color, self, [row, i])
+    end
   end
 
   def [](row, col)
