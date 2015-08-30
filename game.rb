@@ -2,14 +2,16 @@ require 'io/console'
 require_relative 'board'
 require_relative 'vector'
 require_relative 'player'
+require_relative 'hud'
 
 class Game
-  attr_reader :board, :white, :black
+  attr_reader :board, :white, :black, :hud
   attr_accessor :cursor, :quit, :current_player
 
   def initialize
     @cursor = [4,4]
     @board = Board.new
+    @hud = Hud.new
     board.populate
     @quit = false
     @white = Player.new(:white)
@@ -29,6 +31,8 @@ class Game
 
   def display_board(cursor)
     board.render(cursor)
+
+    hud.render(current_player.color)
   end
 
   def make_turn(color)

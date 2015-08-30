@@ -1,0 +1,17 @@
+
+
+
+* pawns should not be able to jump through other pieces, as in:
+♜   ♝     ♝ ♞ ♜
+♟ ♟ ♟   ♛ ♟ ♟ ♟
+
+  ♛   ♟   ♚
+      ♟   ♟
+  ♚   ♞
+♟ ♟ ♟   ♟   ♟ ♟
+♜ ♞ ♝     ♝ ♞ ♜
+
+It is White's turn
+
+the pawn behind the white king is able to jump over him to save him from the
+black king. He should not be able to.
