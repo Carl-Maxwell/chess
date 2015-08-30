@@ -70,10 +70,16 @@ class Board
   end
 
   def render(cursor)
+    rows, columns = STDIN.winsize
+
+    ((rows - 8)/2).times { puts }
+
     current_piece_moves = current_piece_valid_moves
     @board.each.with_index do |row, row_i|
+      print " " * ((columns - 16) / 2)
       row.each.with_index do |square_or_piece, col_i|
         str = square_or_piece.piece? ? square_or_piece.to_s : "  "
+
         if [row_i, col_i] == cursor
           print(str.on_yellow)
         elsif current_piece_moves.include?([row_i, col_i])
@@ -86,6 +92,7 @@ class Board
           end
         end
       end
+
       puts
     end
     ""
