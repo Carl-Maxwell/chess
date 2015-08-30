@@ -3,6 +3,7 @@ require_relative 'board'
 require_relative 'vector'
 require_relative 'player'
 require_relative 'hud'
+require 'byebug'
 
 class Game
   attr_reader :board, :white, :black, :hud
@@ -40,10 +41,7 @@ class Game
 
     self.cursor = Vector.new(self.cursor) + get_movement(character)
 
-    # do the other stuff
     piece = board[ *self.cursor ]
-
-    functions = {" " => ??, "\u007F" => ??, "q" => ??}
 
     if character == " "
       if piece.piece? && piece.color == color
@@ -54,7 +52,6 @@ class Game
           board.currently_selected_piece = board.sentinel
         end
       end
-
     elsif character == "q"
       self.quit = true
     end
@@ -69,7 +66,31 @@ class Game
   end
 
   def game_over?
-    self.quit
+    return true if self.quit
+
+    pieces = board.find_pieces_for_color(current_player.color)
+
+    moves = []
+
+    pieces.each do |piece|
+      moves << board.valid_moves_for_piece(piece)
+
+      return false unless moves.empty?
+    end
+
+    unless moves.empty?
+      debugger
+    end
+
+    if moves.empty?
+      return true
+
+      if board.in_check?(current_player.color)
+        # other player won
+      else
+        # stalemate
+      end
+    end
   end
 
   def play

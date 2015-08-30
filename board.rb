@@ -15,8 +15,11 @@ class Board
   def current_piece_valid_moves
     return [] unless self.currently_selected_piece.piece?
 
-    self.currently_selected_piece.possible_moves &
-    self.valid_moves(self.currently_selected_piece.position)
+    valid_moves_for_piece(self.currently_selected_piece)
+  end
+
+  def valid_moves_for_piece(piece)
+    piece.possible_moves & self.valid_moves(piece.position)
   end
 
   def in_check?(color)
@@ -27,6 +30,12 @@ class Board
       end
     end
     false
+  end
+
+  def find_pieces_for_color(color)
+    board.flatten.select do |piece|
+      piece.piece? && piece.color == color
+    end
   end
 
   def find_king(color)
@@ -149,5 +158,4 @@ class Board
   def row(num)
     board[num]
   end
-
 end
