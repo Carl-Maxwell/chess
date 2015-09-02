@@ -1,6 +1,8 @@
 # Chess
 
-The classic game, as a command line program written in ruby.
+![Chess Screenshot](http://i.imgur.com/VR43k4U.png)
+
+The classic game, as a 2 player command line program written in ruby.
 
 To run it, just do:
 
